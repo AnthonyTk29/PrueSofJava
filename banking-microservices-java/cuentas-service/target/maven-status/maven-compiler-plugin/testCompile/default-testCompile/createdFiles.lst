@@ -1,0 +1,3 @@
+com\banking\cuentas\application\service\MovimientoServiceImplTest.class
+com\banking\cuentas\api\controller\CuentasControllerIntegrationTest.class
+com\banking\cuentas\application\service\CuentaServiceImplTest.class

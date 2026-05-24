@@ -1,0 +1,611 @@
+{
+  "info": {
+    "name": "Banking Microservices Java",
+    "description": "Colección para banking-microservices-java (Spring Boot 3 / Java 21).\n\nServicios:\n- clientes-service → http://localhost:8081\n- cuentas-service  → http://localhost:8082\n\nDatos seed disponibles:\n- Clientes: id 1 (Jose Lema), id 2 (Marianela Montalvo), id 3 (Juan Osorio)\n- Cuentas: 478758 (AHORRO/clienteId=1), 225487 (CORRIENTE/clienteId=2), 495878 (AHORRO/clienteId=3), 496825 (AHORRO/clienteId=2), 585545 (CORRIENTE/clienteId=3)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "clientes_url",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "cuentas_url",
+      "value": "http://localhost:8082",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Clientes",
+      "item": [
+        {
+          "name": "Listar todos los clientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{clientes_url}}/api/clientes",
+              "host": ["{{clientes_url}}"],
+              "path": ["api", "clientes"]
+            },
+            "description": "Retorna todos los clientes registrados.\n\nRespuesta exitosa:\n```json\n{\n  \"status\": 200,\n  \"data\": [\n    {\n      \"clienteId\": 1,\n      \"nombre\": \"Jose Lema\",\n      \"genero\": \"Masculino\",\n      \"edad\": 14,\n      \"identificacion\": \"1234567890\",\n      \"direccion\": \"Otavalo sn y Quito\",\n      \"telefono\": \"098254785\",\n      \"estado\": true\n    }\n  ]\n}\n```"
+          }
+        },
+        {
+          "name": "Obtener cliente por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{clientes_url}}/api/clientes/1",
+              "host": ["{{clientes_url}}"],
+              "path": ["api", "clientes", "1"]
+            },
+            "description": "Obtiene un cliente por su ID. Retorna 404 si no existe."
+          }
+        },
+        {
+          "name": "Crear cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Nuevo Cliente\",\n  \"genero\": \"Masculino\",\n  \"edad\": 30,\n  \"identificacion\": \"9876543210\",\n  \"direccion\": \"Av. Amazonas 123\",\n  \"telefono\": \"0991234567\",\n  \"contrasena\": \"pass1234\",\n  \"estado\": true\n}"
+            },
+            "url": {
+              "raw": "{{clientes_url}}/api/clientes",
+              "host": ["{{clientes_url}}"],
+              "path": ["api", "clientes"]
+            },
+            "description": "Crea un nuevo cliente. Retorna 201 con el cliente creado.\n\nValidaciones (Jakarta Bean Validation):\n- nombre: requerido\n- genero: requerido\n- edad: >= 0\n- identificacion: requerida\n- direccion: requerida\n- telefono: requerido\n- contrasena: requerida\n\nPrueba error de validación dejando nombre vacío:\n```json\n{ \"nombre\": \"\", ... }\n```"
+          }
+        },
+        {
+          "name": "Crear cliente - Error validación (nombre vacío)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"\",\n  \"genero\": \"Masculino\",\n  \"edad\": 25,\n  \"identificacion\": \"1111222233\",\n  \"direccion\": \"Calle 1\",\n  \"telefono\": \"0999999999\",\n  \"contrasena\": \"pass\",\n  \"estado\": true\n}"
+            },
+            "url": {
+              "raw": "{{clientes_url}}/api/clientes",
+              "host": ["{{clientes_url}}"],
+              "path": ["api", "clientes"]
+            },
+            "description": "Debe retornar 400 con error de validación:\n```json\n{\n  \"timestamp\": \"...\",\n  \"status\": 400,\n  \"error\": \"Validation error\",\n  \"message\": \"nombre: El nombre es requerido\",\n  \"path\": \"/api/clientes\"\n}\n```"
+          }
+        },
+        {
+          "name": "Actualizar cliente (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Jose Lema Actualizado\",\n  \"genero\": \"Masculino\",\n  \"edad\": 15,\n  \"identificacion\": \"1234567890\",\n  \"direccion\": \"Nueva Dirección 456\",\n  \"telefono\": \"098254785\",\n  \"contrasena\": \"nueva1234\",\n  \"estado\": true\n}"
+            },
+            "url": {
+              "raw": "{{clientes_url}}/api/clientes/1",
+              "host": ["{{clientes_url}}"],
+              "path": ["api", "clientes", "1"]
+            },
+            "description": "Actualización completa del cliente. Retorna 200 con el cliente actualizado."
+          }
+        },
+        {
+          "name": "Cambiar estado cliente (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{clientes_url}}/api/clientes/1/estado?estado=false",
+              "host": ["{{clientes_url}}"],
+              "path": ["api", "clientes", "1", "estado"],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "false"
+                }
+              ]
+            },
+            "description": "Activa o desactiva un cliente. Cambia estado=false para deshabilitar, estado=true para habilitar."
+          }
+        },
+        {
+          "name": "Eliminar cliente",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{clientes_url}}/api/clientes/1",
+              "host": ["{{clientes_url}}"],
+              "path": ["api", "clientes", "1"]
+            },
+            "description": "Elimina un cliente por su ID. Retorna 200 con los datos del cliente eliminado."
+          }
+        },
+        {
+          "name": "Obtener cliente - No existe (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{clientes_url}}/api/clientes/9999",
+              "host": ["{{clientes_url}}"],
+              "path": ["api", "clientes", "9999"]
+            },
+            "description": "Debe retornar 404:\n```json\n{\n  \"timestamp\": \"...\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Cliente con Id 9999 no encontrado\",\n  \"path\": \"/api/clientes/9999\"\n}\n```"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cuentas",
+      "item": [
+        {
+          "name": "Listar todas las cuentas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/api/cuentas",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "cuentas"]
+            },
+            "description": "Retorna todas las cuentas registradas."
+          }
+        },
+        {
+          "name": "Obtener cuenta por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/api/cuentas/1",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "cuentas", "1"]
+            },
+            "description": "Obtiene una cuenta por su ID interno."
+          }
+        },
+        {
+          "name": "Obtener cuenta por número",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/api/cuentas/numero/478758",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "cuentas", "numero", "478758"]
+            },
+            "description": "Obtiene una cuenta por su número de cuenta.\n\nNúmeros seed disponibles: 478758, 225487, 495878, 496825, 585545"
+          }
+        },
+        {
+          "name": "Crear cuenta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroCuenta\": \"999001\",\n  \"tipoCuenta\": \"AHORRO\",\n  \"saldoInicial\": 1500.00,\n  \"clienteId\": 1,\n  \"estado\": true\n}"
+            },
+            "url": {
+              "raw": "{{cuentas_url}}/api/cuentas",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "cuentas"]
+            },
+            "description": "Crea una nueva cuenta. Retorna 201.\n\nReglas de negocio:\n- clienteId debe existir (sincronizado via RabbitMQ desde clientes-service)\n- numeroCuenta debe ser único\n- tipoCuenta: solo AHORRO o CORRIENTE"
+          }
+        },
+        {
+          "name": "Crear cuenta - Cliente inexistente (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroCuenta\": \"NOEXISTE001\",\n  \"tipoCuenta\": \"AHORRO\",\n  \"saldoInicial\": 500.00,\n  \"clienteId\": 9999,\n  \"estado\": true\n}"
+            },
+            "url": {
+              "raw": "{{cuentas_url}}/api/cuentas",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "cuentas"]
+            },
+            "description": "Debe retornar 400 porque el clienteId 9999 no existe en el read model."
+          }
+        },
+        {
+          "name": "Crear cuenta - Tipo inválido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroCuenta\": \"TIPOINV001\",\n  \"tipoCuenta\": \"INVALIDO\",\n  \"saldoInicial\": 500.00,\n  \"clienteId\": 1,\n  \"estado\": true\n}"
+            },
+            "url": {
+              "raw": "{{cuentas_url}}/api/cuentas",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "cuentas"]
+            },
+            "description": "Debe retornar 400: tipoCuenta solo acepta AHORRO o CORRIENTE."
+          }
+        },
+        {
+          "name": "Actualizar cuenta (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroCuenta\": \"478758\",\n  \"tipoCuenta\": \"AHORRO\",\n  \"saldoInicial\": 2500.00,\n  \"clienteId\": 1,\n  \"estado\": true\n}"
+            },
+            "url": {
+              "raw": "{{cuentas_url}}/api/cuentas/1",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "cuentas", "1"]
+            },
+            "description": "Actualización completa de la cuenta."
+          }
+        },
+        {
+          "name": "Cambiar estado cuenta (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/api/cuentas/1/estado?estado=false",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "cuentas", "1", "estado"],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "false"
+                }
+              ]
+            },
+            "description": "Activa o desactiva una cuenta."
+          }
+        },
+        {
+          "name": "Eliminar cuenta",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/api/cuentas/1",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "cuentas", "1"]
+            },
+            "description": "Elimina una cuenta por su ID."
+          }
+        },
+        {
+          "name": "Obtener cuenta - No existe (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/api/cuentas/99999",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "cuentas", "99999"]
+            },
+            "description": "Debe retornar 404."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movimientos",
+      "item": [
+        {
+          "name": "Listar todos los movimientos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/api/movimientos",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "movimientos"]
+            },
+            "description": "Retorna todos los movimientos registrados."
+          }
+        },
+        {
+          "name": "Obtener movimiento por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/api/movimientos/1",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "movimientos", "1"]
+            },
+            "description": "Obtiene un movimiento por su ID."
+          }
+        },
+        {
+          "name": "Crear movimiento - Depósito",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroCuenta\": \"478758\",\n  \"tipoMovimiento\": \"DEPOSITO\",\n  \"valor\": 575.00\n}"
+            },
+            "url": {
+              "raw": "{{cuentas_url}}/api/movimientos",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "movimientos"]
+            },
+            "description": "Registra un depósito. El valor debe ser POSITIVO.\n\nSaldo inicial de 478758: 2000.00\nSaldo resultante esperado: 2575.00\n\nRespuesta:\n```json\n{\n  \"status\": 201,\n  \"data\": {\n    \"id\": ...,\n    \"numeroCuenta\": \"478758\",\n    \"tipoMovimiento\": \"DEPOSITO\",\n    \"valor\": 575.00,\n    \"saldo\": 2575.00\n  }\n}\n```"
+          }
+        },
+        {
+          "name": "Crear movimiento - Retiro",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroCuenta\": \"478758\",\n  \"tipoMovimiento\": \"RETIRO\",\n  \"valor\": -575.00\n}"
+            },
+            "url": {
+              "raw": "{{cuentas_url}}/api/movimientos",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "movimientos"]
+            },
+            "description": "Registra un retiro. El valor debe ser NEGATIVO.\n\nSaldo inicial de 478758: 2000.00\nSaldo resultante esperado: 1425.00\n\nRespuesta:\n```json\n{\n  \"status\": 201,\n  \"data\": {\n    \"tipoMovimiento\": \"RETIRO\",\n    \"valor\": -575.00,\n    \"saldo\": 1425.00\n  }\n}\n```"
+          }
+        },
+        {
+          "name": "Crear movimiento - Saldo insuficiente (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroCuenta\": \"495878\",\n  \"tipoMovimiento\": \"RETIRO\",\n  \"valor\": -500.00\n}"
+            },
+            "url": {
+              "raw": "{{cuentas_url}}/api/movimientos",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "movimientos"]
+            },
+            "description": "Debe retornar 409 Conflict.\n\nCuenta 495878 tiene saldo 0.00, intentar retirar -500 genera:\n```json\n{\n  \"timestamp\": \"...\",\n  \"status\": 409,\n  \"error\": \"Conflict\",\n  \"message\": \"Saldo no disponible para realizar el retiro\",\n  \"path\": \"/api/movimientos\"\n}\n```"
+          }
+        },
+        {
+          "name": "Actualizar movimiento (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroCuenta\": \"478758\",\n  \"tipoMovimiento\": \"DEPOSITO\",\n  \"valor\": 1000.00\n}"
+            },
+            "url": {
+              "raw": "{{cuentas_url}}/api/movimientos/1",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "movimientos", "1"]
+            },
+            "description": "Actualiza los datos de un movimiento existente."
+          }
+        },
+        {
+          "name": "Eliminar movimiento",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/api/movimientos/1",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "movimientos", "1"]
+            },
+            "description": "Elimina un movimiento por su ID."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reportes",
+      "item": [
+        {
+          "name": "Reporte de movimientos por cliente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/api/reportes?clienteId=1&fechaInicio=2024-01-01&fechaFin=2025-12-31",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "reportes"],
+              "query": [
+                {
+                  "key": "clienteId",
+                  "value": "1"
+                },
+                {
+                  "key": "fechaInicio",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "fechaFin",
+                  "value": "2025-12-31"
+                }
+              ]
+            },
+            "description": "Genera el reporte de movimientos para un cliente en un rango de fechas.\n\nFormato de fechas: ISO 8601 (YYYY-MM-DD)\n\nRespuesta:\n```json\n{\n  \"status\": 200,\n  \"data\": {\n    \"clienteId\": 1,\n    \"nombre\": \"Jose Lema\",\n    \"cuentas\": [\n      {\n        \"numeroCuenta\": \"478758\",\n        \"tipoCuenta\": \"AHORRO\",\n        \"saldoInicial\": 2000.00,\n        \"estado\": true,\n        \"movimientos\": [...]\n      }\n    ]\n  }\n}\n```"
+          }
+        },
+        {
+          "name": "Reporte - Hoy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/api/reportes?clienteId=1&fechaInicio=2026-05-24&fechaFin=2026-05-24",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "reportes"],
+              "query": [
+                {
+                  "key": "clienteId",
+                  "value": "1"
+                },
+                {
+                  "key": "fechaInicio",
+                  "value": "2026-05-24"
+                },
+                {
+                  "key": "fechaFin",
+                  "value": "2026-05-24"
+                }
+              ]
+            },
+            "description": "Reporte del día de hoy para Jose Lema (clienteId=1)."
+          }
+        },
+        {
+          "name": "Reporte - Cliente inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/api/reportes?clienteId=9999&fechaInicio=2024-01-01&fechaFin=2024-12-31",
+              "host": ["{{cuentas_url}}"],
+              "path": ["api", "reportes"],
+              "query": [
+                {
+                  "key": "clienteId",
+                  "value": "9999"
+                },
+                {
+                  "key": "fechaInicio",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "fechaFin",
+                  "value": "2024-12-31"
+                }
+              ]
+            },
+            "description": "Debe retornar 404 porque el clienteId 9999 no existe."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Swagger / OpenAPI",
+      "item": [
+        {
+          "name": "Swagger UI - Clientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{clientes_url}}/swagger-ui.html",
+              "host": ["{{clientes_url}}"],
+              "path": ["swagger-ui.html"]
+            }
+          }
+        },
+        {
+          "name": "Swagger UI - Cuentas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/swagger-ui.html",
+              "host": ["{{cuentas_url}}"],
+              "path": ["swagger-ui.html"]
+            }
+          }
+        },
+        {
+          "name": "OpenAPI JSON - Clientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{clientes_url}}/v3/api-docs",
+              "host": ["{{clientes_url}}"],
+              "path": ["v3", "api-docs"]
+            }
+          }
+        },
+        {
+          "name": "OpenAPI JSON - Cuentas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{cuentas_url}}/v3/api-docs",
+              "host": ["{{cuentas_url}}"],
+              "path": ["v3", "api-docs"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
